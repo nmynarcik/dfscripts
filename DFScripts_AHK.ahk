@@ -10,20 +10,6 @@
 ----------------------------------------------------------------------------- 
 */
 
-isMouseShown()
-{
-StructSize := A_PtrSize + 16
-VarSetCapacity(InfoStruct, StructSize)
-NumPut(StructSize, InfoStruct)
-DllCall("GetCursorInfo", UInt, &InfoStruct)
-Result := NumGet(InfoStruct, 8)
-
-if Result
-return 1
-else
-return 0
-}  
-
 destination = %A_WorkingDir%\images\splash.jpg
 
 SplashImage, %destination%, , , , DFScripts
@@ -33,14 +19,7 @@ SplashImage, Off
 
 ;Variables
 Global $Potted = False
-Global $Paused = False
-Global $UserPaused = False
-
-Global $ClickerOn = False
-Global $gotPoint = False
-Global $clickPoint
-Global $timeInt
-Global $clickTimer = 0
+Global $PotTimer := -60000
 
 Global $PM = 0, $IM = 0, $IS = 0, $UC = 0, $DB = 0, $FB = 0, $LB = 0
 Global $PMTime, $IMTime, $ISTime, $UCTime, $DBTime, $FBTime, $LBTime
@@ -73,30 +52,139 @@ End::terminate()
 
 #If !isMouseShown() and #If WinActive("Darkfall Online")
 
-Pause::MsgBox You paused the script
 1::whirlwind()
 2::powerAttack()
 3::knockback()
 4::disableParry()
-~*v::sword_board()
 
+6::
+7::
+8::
+drinkPot()
+return
+	
+~*v::sword_board()
 /*
-6::pot1()
-7::pot2()
-8::pot3()
 HotKeySet("{NUMPAD4}", "RayCast")
 */
 
+;Binds are set here
+	k_1 = {RShift Down}7{RShift Up}   	;Pungent Mist
+	k_2 = {RShift Down}1{RShift Up}		;Dragon's Breath
+    k_3 = {RShift Down}3{RShift Up}		;Impale
+	k_4 = {RShift Down}4{RShift Up}		;Insect Swarm
+    k_5 = {RShift Down}2{RShift Up}		;Unholy Caress   
+    k_6 = {RShift Down}5{RShift Up}		;Frost Bite    
+    k_7 = {RShift Down}6{RShift Up}		;Lightning Bolt
+     
+    ;Cooldowns are set here
+	cd_1 = 16000  ;Pungent Mist
+	cd_2 = 14000  ;Dragon's Breath
+    cd_3 = 6500   ;Impale
+	cd_4 = 13000  ;Insect Swarm
+    cd_5 = 14000  ;Unholy Caress
+    cd_6 = 9500   ;Frost Bite
+    cd_7 = 9000   ;Lightning Bolt
+     
+    ;Ray priority is set here
+	p_1 = 1			;Pungent Mist
+    p_2 = 2      	;Impale
+    p_3 = 3      	;Unholy Caress
+    p_4 = 4      	;Dragon's Breath
+    p_5 = 5       	;Frost Bite
+    p_6 = 6       	;Insect Swarm
+    p_7 = 7       	;Lightning Bolt
+     
+    ;Initializes ray availability array to 1 (off cooldown)
+    While A_Index <= 7
+    {
+         a_%A_Index% = 1
+    }
+    While A_Index <= 7
+    {
+         a_f_%A_Index% = 1
+    }
+    ~rbutton::
+    cur_ray := RayCheck(cur_ray)
+    KeySend(cur_ray)
+    Hotkey , ~LButton , TimerStart , On
+    Return
+     
+    TimerStart:
+    Hotkey , ~LButton , TimerStart , Off
+    TimerCreate(cur_ray)
+    Return
+     
+    ;Subroutine group to reset ray cds
+    1:=
+    2:=
+    3:=
+    4:=
+    5:=
+    6:=
+	7:=
+    a_%A_ThisLabel% = 1
+    Return
+           
+    /*Assigns the value of cur_ray to the first available
+    ray according to priority
+    */
+    RayCheck(cur_ray)
+    {
+            global
+           
+            /*Initiates cur_ray to your highest priority ray
+            in the case of all rays being off cooldown
+            */
+            cur_ray := p_1
+     
+            While A_Index <= 6
+        {
+        ray_number := p_%A_Index%
+            if (a_%ray_number% = 1)
+            {
+                    cur_ray := ray_number
+                    Break
+                    }
+            }
+            Return cur_ray
+    }
+     
+    ;Sends the key of the current ray
+    KeySend(cur_ray)
+    {      
+            global
+           
+            SendInput , % k_%cur_ray%
+            Return
+    }
+     
+    ;Creates a timer to reset the ray cooldown
+    TimerCreate(cur_ray)
+    {
+            global
+           
+            a_%cur_ray% = 0
+            SetTimer , %cur_ray% , % -cd_%cur_ray%
+            Return
+    }  
 
 
-; Sprint Toggle
+;****************************************
+;  Sprint Toggle
+;
+~*w::F12 ;supposedly this should work
+/*
 ~*w::
  send {f12 down}
  keywait w
  send {f12 up}
 return
+*/
 
-;Functions
+;****************************************
+;
+;   Functions
 
 whirlwind()
 {
@@ -138,74 +226,30 @@ sword_board()
 	TrayTip, DF Scripts, Sword/Board Ready!, 3, 1
 }  ;==>sword_board
 
-/*
+
 ;Pot functions
-Func pot1()
-	HotKeySet("6")
-	Send("6")
-	HotKeySet("6", "pot1")
-	If $Potted == False Then
-		TrayTip("DF Scripts", "Drinking Pot!", 5, 2)
-		;_GUICtrlStatusBar_SetText($StatusBar, "Drinking Pot")
-		SoundPlay("audio/drinkingpot.wma", 0)
+drinkPot()
+{
+	if ($Potted == False){
+		TrayTip, DF Scripts, Drinking Pot!, 5, 2
+		SoundPlay %A_WorkingDir%\audio\drinkingpot.wma
 		$Potted = True
-		startPotTimer()
-	EndIf
-EndFunc   ;==>pot1
-
-Func pot2()
-	HotKeySet("7")
-	Send("7")
-	HotKeySet("7", "pot2")
-	If $Potted == False Then
-		TrayTip("DF Scripts", "Drinking Pot!", 5, 2)
-		;_GUICtrlStatusBar_SetText($StatusBar, "Drinking Pot")
-		SoundPlay("audio/drinkingpot.wma", 0)
-		$Potted = True
-		startPotTimer()
-	EndIf
-EndFunc   ;==>pot2
-
-Func pot3()
-	HotKeySet("8")
-	Send("8")
-	HotKeySet("8", "pot3")
-	If $Potted == False Then
-		TrayTip("DF Scripts", "Drinking Pot!", 5, 2)
-		;_GUICtrlStatusBar_SetText($StatusBar, "Drinking Pot")
-		SoundPlay("audio/drinkingpot.wma", 0)
-		$Potted = True
-		startPotTimer()
-	EndIf
-EndFunc   ;==>pot3
-
-Func startPotTimer()
-	TrayTip("DF Scripts", "Waiting for Pot Timer...", 5, 2)
-	;_GUICtrlStatusBar_SetText($StatusBar, "Waiting for Pot Timer")
-	ProgressOn("Pot Timer", "", "0 percent", 0, 0)
-	For $i = 2 To 100 Step 1.67
-		Sleep(1000)
-		ProgressSet(Ceiling($i), Ceiling($i) & "%")
-		Call("RayReset")
-	Next
-	ProgressSet(100, "Done", "Complete")
-	Sleep(500)
-	ProgressOff()
-	potReady()
-EndFunc   ;==>startPotTimer
-
+		SetTimer, potReady, %$PotTimer%
+		return
+	}
+	return
+}   ;==>drinkPot
 
 ;announce pot is ready
-Func potReady()
-	If $Potted == True Then
-		TrayTip("DF Scripts", "Pot Ready!", 5, 2)
-		;_GUICtrlStatusBar_SetText($StatusBar, "Pot Ready!")
-		SoundPlay("audio/potready.wma", 0)
-	EndIf
+potReady:
+{
+	TrayTip, DF Scripts, Pot Ready!, 5, 2
+	SoundPlay, %A_WorkingDir%\audio\potready.wma
 	$Potted = False
-	;_GUICtrlStatusBar_SetText($StatusBar, "Scripts On")
-EndFunc   ;==>potReady
+	return
+}   ;==>potReady
 
+/*
 Func RayReset()
 	if (TimerDiff($PMTime) > 16000) Then
 		$PM = 0
@@ -310,6 +354,21 @@ Func RayCast()
 	EndIf
 EndFunc   ;==>RayCast
 */
+
+; GUI check in game
+isMouseShown()
+{
+StructSize := A_PtrSize + 16
+VarSetCapacity(InfoStruct, StructSize)
+NumPut(StructSize, InfoStruct)
+DllCall("GetCursorInfo", UInt, &InfoStruct)
+Result := NumGet(InfoStruct, 8)
+
+if Result
+return 1
+else
+return 0
+} 
 
 ;end the script
 terminate()
