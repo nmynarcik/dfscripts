@@ -50,136 +50,128 @@ Return
 ;hotkey to kill script
 End::terminate()
 
+;Set the number of rays you have here
+num_rays = 7
+
+
+;Set your binds here
+/*Regarding modifiers: Shift = +, Ctrl = ^, Alt = !,
+> < denotes right and left keys respectively. 
+Consult the help file for further information
+*/
+k_1 = {RShift Down}7{RShift Up}   	;Pungent Mist
+k_2 = {RShift Down}1{RShift Up}		;Dragon's Breath
+k_3 = {RShift Down}3{RShift Up}		;Impale
+k_4 = {RShift Down}4{RShift Up}		;Insect Swarm
+k_5 = {RShift Down}2{RShift Up}		;Unholy Caress   
+k_6 = {RShift Down}5{RShift Up}		;Frost Bite    
+k_7 = {RShift Down}6{RShift Up}		;Lightning Bolt
+
+;Tweak cooldowns here
+cd_1 = 16000  ;Pungent Mist
+cd_2 = 14000  ;Dragon's Breath
+cd_3 = 6500   ;Impale
+cd_4 = 13000  ;Insect Swarm
+cd_5 = 14000  ;Unholy Caress
+cd_6 = 9500   ;Frost Bite
+cd_7 = 9000   ;Lightning Bolt
+
+
+;Set ray priority here, 1 being highest, 6 being lowest
+p_1 = 1			;Pungent Mist
+p_2 = 2      	;Impale
+p_3 = 3      	;Unholy Caress
+p_4 = 4      	;Dragon's Breath
+p_5 = 5       	;Frost Bite
+p_6 = 6       	;Insect Swarm
+p_7 = 7       	;Lightning Bolt
+
+;Initializes ray availability array to 1 (off cooldown)
+While A_Index <= num_rays
+{
+     r_%A_Index% = 1
+}
+
+;Set your ray HotKey here (currently set to Mid Mouse Button)
+Numpad4::
+SetCapsLockState, Off
+;Set heavy staff here, if you don't want to use that remove the next send/sleep lines, change sleep suit ping
+
+cur_ray := RayLogic(cur_ray, cur_key, cur_cool)
+Send , %cur_key%
+Send, {LButton}
+
+If (ErrorLevel <> 1)
+   {
+   r_%cur_ray% = 0  
+   neg_cur_cool := -cur_cool
+   SetTimer , %cur_ray% , %neg_cur_cool%
+   }
+Return
+
+
+;Subroutine group to reset ray cds
+1:
+2:
+3:
+4:
+5:
+6:
+7:
+r_%A_ThisLabel% = 1
+Return
+
 #If !isMouseShown() and #If WinActive("Darkfall Online")
 
-;1::whirlwind()
-;2::powerAttack()
-;3::knockback()
-;4::disableParry()
+1::whirlwind()
+2::powerAttack()
+3::knockback()
+4::disableParry()
 
-;~6::
-;~7::
+~6::
+~7::
 ~8::
 drinkPot()
 return
 	
 ~*v::sword_board()
-/*
-HotKeySet("{NUMPAD4}", "RayCast")
-*/
 
-;Binds are set here
-	k_1 = {RShift Down}7{RShift Up}   	;Pungent Mist
-	k_2 = {RShift Down}1{RShift Up}		;Dragon's Breath
-    k_3 = {RShift Down}3{RShift Up}		;Impale
-	k_4 = {RShift Down}4{RShift Up}		;Insect Swarm
-    k_5 = {RShift Down}2{RShift Up}		;Unholy Caress   
-    k_6 = {RShift Down}5{RShift Up}		;Frost Bite    
-    k_7 = {RShift Down}6{RShift Up}		;Lightning Bolt
-     
-    ;Cooldowns are set here
-	cd_1 = 16000  ;Pungent Mist
-	cd_2 = 14000  ;Dragon's Breath
-    cd_3 = 6500   ;Impale
-	cd_4 = 13000  ;Insect Swarm
-    cd_5 = 14000  ;Unholy Caress
-    cd_6 = 9500   ;Frost Bite
-    cd_7 = 9000   ;Lightning Bolt
-     
-    ;Ray priority is set here
-	p_1 = 1			;Pungent Mist
-    p_2 = 2      	;Impale
-    p_3 = 3      	;Unholy Caress
-    p_4 = 4      	;Dragon's Breath
-    p_5 = 5       	;Frost Bite
-    p_6 = 6       	;Insect Swarm
-    p_7 = 7       	;Lightning Bolt
-     
-    ;Initializes ray availability array to 1 (off cooldown)
-    While A_Index <= 7
+
+RayLogic(cur_ray, ByRef cur_key, ByRef cur_cool)
+{
+    global
+
+
+/*Initiates cur_ray to your highest priority ray 
+in the case of all rays being off cooldown
+*/
+cur_ray := p_1
+/*Assigns the value of cur_ray to the first available 
+ray according to priority
+*/
+While A_Index <= num_rays 
     {
-         a_%A_Index% = 1
+    ray_number := p_%A_Index% 
+if (r_%ray_number% = 1)
+        {
+cur_ray := ray_number
+Break
+   }
     }
-    While A_Index <= 7
-    {
-         a_f_%A_Index% = 1
-    }
-    ~rbutton::
-    cur_ray := RayCheck(cur_ray)
-	KeySend(cur_ray)
-    Hotkey , ~LButton , TimerStart , On
-    Return
-     
-    TimerStart:
-    Hotkey , ~LButton , TimerStart , Off
-    TimerCreate(cur_ray)
-    Return
-     
-    ;Subroutine group to reset ray cds
-    1:
-    2:
-    3:
-    4:
-    5:
-    6:
-	7:
-    a_%A_ThisLabel% = 1
-    Return
-           
-    /*
-	Assigns the value of cur_ray to the first available
-    ray according to priority
-    */
-    RayCheck(cur_ray)
-    {
-            global
-           
-            /*Initiates cur_ray to your highest priority ray
-            in the case of all rays being off cooldown
-            */
-            cur_ray := p_1
-     
-			While A_Index <= 7
-			{
-				ray_number := p_%A_Index%
-				if (a_%ray_number% = 1)
-				{
-                    cur_ray := ray_number
-                    Break
-				}
-			}
-		Return cur_ray
-    }
-     
-    ;Sends the key of the current ray
-    KeySend(cur_ray)
-    {      
-            global
-            SendInput , % k_%cur_ray%
-            Return
-    }
-     
-    ;Creates a timer to reset the ray cooldown
-    TimerCreate(cur_ray)
-    {
-            global
-            a_%cur_ray% = 0
-            SetTimer, %cur_ray% , % -cd_%cur_ray%
-            Return
-    }  
+
+
+;Sets the ray's corresponding key and cooldown
+cur_key  := k_%cur_ray%
+cur_cool := cd_%cur_ray%
+Return cur_ray
+}
 
 
 ;****************************************
 ;  Sprint Toggle
 ;
-~*w::F12 ;supposedly this should work
-/*
-~*w::
- send {f12 down}
- keywait w
- send {f12 up}
-return
-*/
+~*w::F10 ;supposedly this should work
+
 
 ;****************************************
 ;
