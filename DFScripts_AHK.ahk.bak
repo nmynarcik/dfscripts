@@ -52,14 +52,14 @@ End::terminate()
 
 #If !isMouseShown() and #If WinActive("Darkfall Online")
 
-1::whirlwind()
-2::powerAttack()
-3::knockback()
-4::disableParry()
+;1::whirlwind()
+;2::powerAttack()
+;3::knockback()
+;4::disableParry()
 
-6::
-7::
-8::
+;~6::
+;~7::
+~8::
 drinkPot()
 return
 	
@@ -106,9 +106,8 @@ HotKeySet("{NUMPAD4}", "RayCast")
     }
     ~rbutton::
     cur_ray := RayCheck(cur_ray)
-    KeySend(cur_ray)
+	KeySend(cur_ray)
     Hotkey , ~LButton , TimerStart , On
-	MsgBox RightClick Wahoo
     Return
      
     TimerStart:
@@ -117,13 +116,13 @@ HotKeySet("{NUMPAD4}", "RayCast")
     Return
      
     ;Subroutine group to reset ray cds
-    1:=
-    2:=
-    3:=
-    4:=
-    5:=
-    6:=
-	7:=
+    1:
+    2:
+    3:
+    4:
+    5:
+    6:
+	7:
     a_%A_ThisLabel% = 1
     Return
            
@@ -139,23 +138,22 @@ HotKeySet("{NUMPAD4}", "RayCast")
             */
             cur_ray := p_1
      
-            While A_Index <= 6
-        {
-        ray_number := p_%A_Index%
-            if (a_%ray_number% = 1)
-            {
+			While A_Index <= 7
+			{
+				ray_number := p_%A_Index%
+				if (a_%ray_number% = 1)
+				{
                     cur_ray := ray_number
                     Break
-                    }
-            }
-            Return cur_ray
+				}
+			}
+		Return cur_ray
     }
      
     ;Sends the key of the current ray
     KeySend(cur_ray)
     {      
             global
-           
             SendInput , % k_%cur_ray%
             Return
     }
@@ -164,9 +162,8 @@ HotKeySet("{NUMPAD4}", "RayCast")
     TimerCreate(cur_ray)
     {
             global
-           
             a_%cur_ray% = 0
-            SetTimer , %cur_ray% , % -cd_%cur_ray%
+            SetTimer, %cur_ray% , % -cd_%cur_ray%
             Return
     }  
 
