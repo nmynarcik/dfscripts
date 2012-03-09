@@ -49,12 +49,9 @@ End::terminate()
 ;Set the number of rays you have here
 num_rays = 7
 
+;Set the number of rays you have here
+g_cool = false
 
-;Set your binds here
-/*Regarding modifiers: Shift = +, Ctrl = ^, Alt = !,
-> < denotes right and left keys respectively. 
-Consult the help file for further information
-*/
 k_1 = {RShift Down}7{RShift Up}   	;Pungent Mist
 k_2 = {RShift Down}1{RShift Up}		;Dragon's Breath
 k_3 = {RShift Down}3{RShift Up}		;Impale
@@ -72,39 +69,17 @@ cd_5 = 14000  ;Unholy Caress
 cd_6 = 9500   ;Frost Bite
 cd_7 = 9000   ;Lightning Bolt
 
+r_1 = 1	 ;Pungent Mist
+r_2 = 1	 ;Dragon's Breath
+r_3 = 1  ;Impale
+r_4 = 1	 ;Insect Swarm
+r_5 = 1  ;Unholy Caress
+r_6 = 1	 ;Frost Bite
+r_7 = 1  ;Lightning Bolt
 
-;Set ray priority here, 1 being highest, 6 being lowest
-p_1 = 1			;Pungent Mist
-p_2 = 2      	;Impale
-p_3 = 3      	;Unholy Caress
-p_4 = 4      	;Dragon's Breath
-p_5 = 5       	;Frost Bite
-p_6 = 6       	;Insect Swarm
-p_7 = 7       	;Lightning Bolt
-
-;Initializes ray availability array to 1 (off cooldown)
-While A_Index <= num_rays
-{
-     r_%A_Index% = 1
-}
-
-;Set your ray HotKey here (currently set to Mid Mouse Button)
-Numpad4::
-SetCapsLockState, Off
-;Set heavy staff here, if you don't want to use that remove the next send/sleep lines, change sleep suit ping
-
-cur_ray := RayLogic(cur_ray, cur_key, cur_cool)
-Send , %cur_key%
-Send, {LButton}
-
-If (ErrorLevel <> 1)
-   {
-   r_%cur_ray% = 0  
-   neg_cur_cool := -cur_cool
-   SetTimer , %cur_ray% , %neg_cur_cool%
-   }
-Return
-
+gCool:
+g_cool = false
+return
 
 ;Subroutine group to reset ray cds
 1:
@@ -117,13 +92,72 @@ Return
 r_%A_ThisLabel% = 1
 Return
 
+
+;Set your ray HotKey here (currently set to Mid Mouse Button)
+~Numpad4::
+SetCapsLockState, Off
+;Set heavy staff here, if you don't want to use that remove the next send/sleep lines, change sleep suit ping
+
+;MsgBox,,%g_cool%
+
+if g_cool = false
+{
+       
+	cur_ray := RayLogic()
+	if cur_ray > 0
+	{
+		
+		g_cool = true
+		KeySend(cur_ray)
+		sleep, 20
+		Send, {LButton}
+		
+		SetTimer, gCool , -550
+
+		r_%cur_ray% = 0  
+		neg_cur_cool := -cd_%cur_ray%
+		SetTimer , %cur_ray% , %neg_cur_cool%
+	}
+}
+
+Return
+
+
+;Sends the key of the current ray
+KeySend(cur_ray)
+{
+        global
+ 
+        SendInput , % k_%cur_ray%
+        Return
+}
+
+
+RayLogic()
+{
+	global
+	
+	num = 0
+	; find the first available ray off cooldown
+	Loop, 6
+    {
+		if (r_%A_Index% = 1)
+		{
+		num = %A_Index%
+		break
+		}
+	}
+	Return num
+}
+
+
+
 #If !isMouseShown() and #If WinActive("Darkfall Online")
 
 1::whirlwind()
 2::powerAttack()
 3::knockback()
 4::disableParry()
-
 ~6::
 ~7::
 ~8::
@@ -131,37 +165,6 @@ drinkPot()
 return
 	
 ~*v::sword_board()
-
-
-RayLogic(cur_ray, ByRef cur_key, ByRef cur_cool)
-{
-    global
-
-
-/*Initiates cur_ray to your highest priority ray 
-in the case of all rays being off cooldown
-*/
-cur_ray := p_1
-/*Assigns the value of cur_ray to the first available 
-ray according to priority
-*/
-While A_Index <= num_rays 
-    {
-    ray_number := p_%A_Index% 
-	if (r_%ray_number% = 1)
-	{
-		cur_ray := ray_number
-		Break
-	}
-}
-
-
-;Sets the ray's corresponding key and cooldown
-cur_key  := k_%cur_ray%
-cur_cool := cd_%cur_ray%
-Return cur_ray
-}
-
 
 ;****************************************
 ;  Sprint Toggle
