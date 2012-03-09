@@ -9,7 +9,6 @@
 
 ----------------------------------------------------------------------------- 
 */
-#SingleInstance
 
 destination = %A_WorkingDir%\images\splash.jpg
 
@@ -61,6 +60,7 @@ k_5 = {RShift Down}2{RShift Up}		;Unholy Caress
 k_6 = {RShift Down}5{RShift Up}		;Frost Bite    
 k_7 = {RShift Down}6{RShift Up}		;Lightning Bolt
 
+
 ;Tweak cooldowns here
 cd_1 = 16000  ;Pungent Mist
 cd_2 = 14000  ;Dragon's Breath
@@ -99,22 +99,28 @@ Return
 SetCapsLockState, Off
 ;Set heavy staff here, if you don't want to use that remove the next send/sleep lines, change sleep suit ping
 
-if (g_cool == false)
+;MsgBox,,%g_cool%
+
+if g_cool = false
 {
+       
 	cur_ray := RayLogic()
 	if cur_ray > 0
-	{		
-		KeySend(cur_ray)
-		sleep, 20
-		Send, {LButton}	
+	{
+		
 		g_cool = true
-		SetTimer, gCool , -1000
-	
+		KeySend(cur_ray)
+		sleep, 50
+		Send, {LButton}
+		
+		SetTimer, gCool , -1200
+
 		r_%cur_ray% = 0  
 		neg_cur_cool := -cd_%cur_ray%
 		SetTimer , %cur_ray% , %neg_cur_cool%
 	}
 }
+
 Return
 
 
@@ -206,7 +212,7 @@ disableParry()
 sword_board()
 {
 	Send N
-	Sleep, 500
+	Sleep, 670
 	Send O
 	TrayTip, DF Scripts, Sword/Board Ready!, 3, 1
 }  ;==>sword_board
