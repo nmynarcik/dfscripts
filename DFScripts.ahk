@@ -9,6 +9,7 @@
 
 ----------------------------------------------------------------------------- 
 */
+#SingleInstance
 
 destination = %A_WorkingDir%\images\splash.jpg
 
@@ -98,28 +99,22 @@ Return
 SetCapsLockState, Off
 ;Set heavy staff here, if you don't want to use that remove the next send/sleep lines, change sleep suit ping
 
-;MsgBox,,%g_cool%
-
-if g_cool = false
+if (g_cool == false)
 {
-       
 	cur_ray := RayLogic()
 	if cur_ray > 0
-	{
-		
-		g_cool = true
+	{		
 		KeySend(cur_ray)
 		sleep, 20
-		Send, {LButton}
-		
-		SetTimer, gCool , -550
-
+		Send, {LButton}	
+		g_cool = true
+		SetTimer, gCool , -1000
+	
 		r_%cur_ray% = 0  
 		neg_cur_cool := -cd_%cur_ray%
 		SetTimer , %cur_ray% , %neg_cur_cool%
 	}
 }
-
 Return
 
 
@@ -139,7 +134,7 @@ RayLogic()
 	
 	num = 0
 	; find the first available ray off cooldown
-	Loop, 6
+	Loop, num_rays
     {
 		if (r_%A_Index% = 1)
 		{
