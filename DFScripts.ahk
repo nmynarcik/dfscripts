@@ -112,7 +112,7 @@ if g_cool = false
 		sleep, 20
 		Send, {LButton}
 		
-		SetTimer, gCool , -550
+		SetTimer, gCool , -1200
 
 		r_%cur_ray% = 0  
 		neg_cur_cool := -cd_%cur_ray%
