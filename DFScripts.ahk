@@ -9,6 +9,7 @@
 
 ----------------------------------------------------------------------------- 
 */
+#SingleInstance
 
 destination = %A_WorkingDir%\images\splash.jpg
 
@@ -49,7 +50,6 @@ End::terminate()
 ;Set the number of rays you have here
 num_rays = 7
 
-;Set the number of rays you have here
 g_cool = false
 
 k_1 = {RShift Down}7{RShift Up}   	;Pungent Mist
@@ -95,19 +95,17 @@ Return
 
 
 ;Set your ray HotKey here (currently set to Mid Mouse Button)
-~Numpad4::
+Numpad4::
 SetCapsLockState, Off
 ;Set heavy staff here, if you don't want to use that remove the next send/sleep lines, change sleep suit ping
 
 ;MsgBox,,%g_cool%
 
-if g_cool = false
+if (g_cool = false)
 {
-       
 	cur_ray := RayLogic()
 	if cur_ray > 0
-	{
-		
+	{	
 		g_cool = true
 		KeySend(cur_ray)
 		sleep, 50
@@ -128,7 +126,7 @@ Return
 KeySend(cur_ray)
 {
         global
- 
+		MsgBox Keysend
         SendInput , % k_%cur_ray%
         Return
 }
@@ -159,18 +157,19 @@ RayLogic()
 2::powerAttack()
 3::knockback()
 4::disableParry()
+
 ~6::
 ~7::
 ~8::
-drinkPot()
-return
+	drinkPot()
+	return
 	
 ~*v::sword_board()
 
 ;****************************************
 ;  Sprint Toggle
 ;
-~*w::F10 ;supposedly this should work
+~*w::F10 
 
 
 ;****************************************
