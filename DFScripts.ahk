@@ -30,14 +30,14 @@ IniRead, ydest, %iniFile%, Loot, 627    ; y destination
 ; Alt+Right Click - sets the location
 ; Alt+Left Click - moves item under cursor to set location
 ;
-$!Lbutton:: 
+~$!Lbutton:: 
 	MouseGetPos, x1, y1
 	MouseClickDrag, left, x1, y1, xdest, ydest, 0 	;0 is mouse speed, 0 is instant
 	MouseMove, x1, y1, 0 							;0 is mouse speed, 0 is instant
 Return
 
 ;Loot destination setup
-$!Rbutton:: 
+~$!Rbutton:: 
 	MouseGetPos, xdest, ydest
 	IniWrite, %xdest%, %iniFile%, Loot, xdest
 	IniWrite, %ydest%, %iniFile%, Loot, ydest
