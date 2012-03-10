@@ -9,6 +9,11 @@
 
 ----------------------------------------------------------------------------- 
 */
+#NoEnv  ; Recommended for performance and compatibility with future AutoHotkey releases.
+;#Warn  ; Recommended for catching common errors.
+SendMode Input  ; Recommended for new scripts due to its superior speed and reliability.
+SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
+
 
 destination = %A_WorkingDir%\images\splash.jpg
 
@@ -17,9 +22,10 @@ SoundPlay, %A_WorkingDir%\audio\WATER.WAV
 Sleep, 3000
 SplashImage, Off
 
+/*
 ;Variables
 Global $Potted = False
-Global $PotTimer := -60000
+Global $PotTimer = -60000
 
 ; Quick Loot Setup
 IniRead, xdest, %iniFile%, Loot, 1425   ; x destination used for quick looter
@@ -43,8 +49,7 @@ Return
 	IniWrite, %ydest%, %iniFile%, Loot, ydest
 Return
 
-;hotkey to kill script
-End::terminate()
+*/
 
 ;Set the number of rays you have here
 num_rays = 7
@@ -92,9 +97,11 @@ return
 r_%A_ThisLabel% = 1
 Return
 
+;hotkey to kill script
+End::terminate()
 
 ;Set your ray HotKey here (currently set to Mid Mouse Button)
-~Numpad4::
+Numpad4::
 SetCapsLockState, Off
 ;Set heavy staff here, if you don't want to use that remove the next send/sleep lines, change sleep suit ping
 
