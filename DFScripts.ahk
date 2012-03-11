@@ -25,7 +25,9 @@ SplashImage, Off
 ;Set the number of rays you have here
 num_rays = 7
 
-;Set the number of rays you have here
+;Variables
+potted := false
+$PotTimer = -60000
 g_cool = false
 
 k_1 = {RShift Down}7{RShift Up}   	;Pungent Mist
@@ -67,10 +69,6 @@ return
 7:
 r_%A_ThisLabel% = 1
 Return
-
-;Variables
-Global $Potted = False
-Global $PotTimer = -60000
 
 ; Quick Loot Setup
 IniRead, xdest, %iniFile%, Loot, 1425   ; x destination used for quick looter
@@ -167,7 +165,7 @@ RayLogic()
 ~6::
 ~7::
 ~8::
-drinkPot()
+	drinkPot()
 return
 	
 ~*v::sword_board()
@@ -241,14 +239,13 @@ sword_board()
 ;Pot functions
 drinkPot()
 {
-	if ($Potted == False){
+	global
+	if (potted = false){
 		TrayTip, DF Scripts, Drinking Pot!, 5, 2
 		SoundPlay %A_WorkingDir%\audio\drinkingpot.wma
-		$Potted = True
+		potted = true
 		SetTimer, potReady, %$PotTimer%
-		return
 	}
-	return
 }   ;==>drinkPot
 
 ;announce pot is ready
@@ -256,7 +253,7 @@ potReady:
 {
 	TrayTip, DF Scripts, Pot Ready!, 5, 2
 	SoundPlay, %A_WorkingDir%\audio\potready.wma
-	$Potted = False
+	potted := false
 	return
 }   ;==>potReady
 
