@@ -130,7 +130,6 @@ if g_cool = false
 
 Return
 
-
 ;Sends the key of the current ray
 KeySend(cur_ray)
 {
