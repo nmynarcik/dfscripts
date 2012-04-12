@@ -229,7 +229,7 @@ disableParry()
 sword_board()
 {
 	SendInput N
-	Sleep, 650
+	Sleep, 550
 	SendInput O
 	TrayTip, DF Scripts, Sword/Board Ready!, 3, 1
 }  ;==>sword_board
